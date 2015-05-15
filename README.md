@@ -1,8 +1,11 @@
 # Android-ColorPicker
 
-Simple but very optimized color picker, can fit any size
-has support since Api 1, so no restriction in which app you can use it.
-(Note. The sample has min Api 11 because of the styles i am using)
+Simple but very optimized color picker, can fit any size.
+
+## Supports API 1
+
+So no restriction in which app you can use it.
+(Note: The sample has min Api 11 because of the styles i am using)
 
 # How to use
 
