@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="vertical_margin">16dp</dimen>
+    <dimen name="horizontal_margin">16dp</dimen>
+
+    <dimen name="half_vertical_margin">8dp</dimen>
+    <dimen name="half_horizontal_margin">8dp</dimen>
+
+    <dimen name="dialog_width">300dp</dimen>
+    <dimen name="hue_bar_height">30dp</dimen>
+    <dimen name="color_picker_height">200dp</dimen>
+    <dimen name="color_preview_height">50dp</dimen>
+
+</resources>

@@ -1,58 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="@dimen/dialog_width"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:background="@drawable/rounded_background"
     android:orientation="vertical"
-    android:layout_margin="10dp">
+    android:padding="@dimen/half_horizontal_margin">
 
     <com.bunk3r.colorpicker.hue.HueBarSlider
         android:id="@+id/hue_slider"
         android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_marginBottom="10dp" />
+        android:layout_height="@dimen/hue_bar_height"
+        android:layout_marginBottom="@dimen/vertical_margin" />
 
     <com.bunk3r.colorpicker.color.ColorAreaPicker
         android:id="@+id/color_area_picker"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_marginBottom="10dp" />
+        android:layout_height="@dimen/color_picker_height"
+        android:layout_marginBottom="@dimen/vertical_margin" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="@dimen/color_preview_height"
         android:weightSum="2">
 
         <View
             android:id="@+id/current_color"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="10dp"
+            android:layout_marginRight="@dimen/half_horizontal_margin"
+            android:layout_marginEnd="@dimen/half_horizontal_margin"
             android:layout_weight="1" />
 
         <View
             android:id="@+id/selected_color"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="10dp"
+            android:layout_marginLeft="@dimen/half_horizontal_margin"
+            android:layout_marginStart="@dimen/half_horizontal_margin"
             android:layout_weight="1" />
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:gravity="right">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/half_vertical_margin"
+        android:gravity="end">
 
         <Button
             android:id="@+id/cancel_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/half_horizontal_margin"
+            android:layout_marginStart="@dimen/half_horizontal_margin"
+            android:layout_marginRight="@dimen/half_horizontal_margin"
+            android:layout_marginEnd="@dimen/half_horizontal_margin"
+            style="?android:attr/buttonBarButtonStyle"
             android:text="@string/cancel_button_text" />
 
         <Button
             android:id="@+id/ok_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/half_horizontal_margin"
+            android:layout_marginStart="@dimen/half_horizontal_margin"
+            android:layout_marginRight="@dimen/half_horizontal_margin"
+            android:layout_marginEnd="@dimen/half_horizontal_margin"
+            style="?android:attr/buttonBarButtonStyle"
             android:text="@string/ok_button_text" />
 
     </LinearLayout>

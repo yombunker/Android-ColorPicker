@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="dialog_background">#FEEE</color>
+    <color name="invisible">#0000</color>
+
+    <drawable name="dialog_background">@color/dialog_background</drawable>
+    <drawable name="transparent">@color/invisible</drawable>
+
+</resources>

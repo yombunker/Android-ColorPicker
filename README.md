@@ -1,11 +1,18 @@
 # Android-ColorPicker
 
 Simple but very optimized color picker, can fit any size
+has support since Api 1, so no restriction in which app you can use it.
+(Note. The sample has min Api 11 because of the styles i am using)
 
 # How to use
 
-Please, check the attached sample app to see how it is used
-Plus, if you want something different to what the supplied Dialog those, just check the current behavior.
+* Implement the interface OnColorChangedListener (Notifies when a color was choose)
+* Add at least a ColorArea to your layout
+* (Optional) If you have a HueBar, send it to your ColorArea
+* Set initial color to your ColorArea
+* And... your done!
+
+You can have a look at the sample app for a more specific case
 
 # License
 

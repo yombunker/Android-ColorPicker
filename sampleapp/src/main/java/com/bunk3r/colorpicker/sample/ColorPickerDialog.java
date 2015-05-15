@@ -1,4 +1,4 @@
-package com.bunk3r.colorpicker;
+package com.bunk3r.colorpicker.sample;
 
 /*
  * Copyright (C) 10/2014 - Bunk3r
@@ -18,11 +18,13 @@ package com.bunk3r.colorpicker;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 
+import com.bunk3r.colorpicker.ColorPickerListener;
 import com.bunk3r.colorpicker.color.ColorAreaPicker;
 import com.bunk3r.colorpicker.color.OnColorChangedListener;
 import com.bunk3r.colorpicker.hue.HuePicker;
@@ -44,6 +46,7 @@ public class ColorPickerDialog extends Dialog implements OnColorChangedListener 
         super(context);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setBackgroundDrawable(new ColorDrawable(R.color.invisible));
     }
 
     public void setColorPickerLister(ColorPickerListener colorPickerLister, String key) {
