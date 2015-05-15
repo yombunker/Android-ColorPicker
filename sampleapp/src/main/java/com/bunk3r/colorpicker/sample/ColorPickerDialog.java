@@ -33,10 +33,7 @@ public class ColorPickerDialog extends Dialog implements OnColorChangedListener 
 
     private ColorPickerListener mColorPickerListener;
     private String mKey;
-    private HuePicker mHuePicker;
-    private ColorAreaPicker mColorAreaPicker;
 
-    private View mCurrentColorPreview;
     private View mSelectedColorPreview;
 
     private int mInitialColor;
@@ -46,7 +43,7 @@ public class ColorPickerDialog extends Dialog implements OnColorChangedListener 
         super(context);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setBackgroundDrawable(new ColorDrawable(R.color.invisible));
+        getWindow().setBackgroundDrawableResource(R.drawable.transparent);
     }
 
     public void setColorPickerLister(ColorPickerListener colorPickerLister, String key) {
@@ -63,19 +60,19 @@ public class ColorPickerDialog extends Dialog implements OnColorChangedListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_color_picker);
 
-        mHuePicker = (HuePicker) findViewById(R.id.hue_slider);
-        mColorAreaPicker = (ColorAreaPicker) findViewById(R.id.color_area_picker);
+        HuePicker huePicker = (HuePicker) findViewById(R.id.hue_slider);
+        ColorAreaPicker colorAreaPicker = (ColorAreaPicker) findViewById(R.id.color_area_picker);
         Button okButton = (Button) findViewById(R.id.ok_button);
         Button cancelButton = (Button) findViewById(R.id.cancel_button);
-        mCurrentColorPreview = findViewById(R.id.current_color);
+        View currentColorPreview = findViewById(R.id.current_color);
         mSelectedColorPreview = findViewById(R.id.selected_color);
 
-        mCurrentColorPreview.setBackgroundColor(mInitialColor);
+        currentColorPreview.setBackgroundColor(mInitialColor);
         mSelectedColorPreview.setBackgroundColor(mInitialColor);
 
-        mColorAreaPicker.setOnColorChangedListener(this);
-        mColorAreaPicker.setHuePicker(mHuePicker);
-        mColorAreaPicker.setColor(mInitialColor);
+        colorAreaPicker.setOnColorChangedListener(this);
+        colorAreaPicker.setHuePicker(huePicker);
+        colorAreaPicker.setColor(mInitialColor);
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
