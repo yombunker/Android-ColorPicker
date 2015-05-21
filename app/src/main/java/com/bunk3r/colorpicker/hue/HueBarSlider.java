@@ -252,7 +252,7 @@ public class HueBarSlider extends View implements HuePicker {
         }
 
         mCurrentHue = hue * mDensityMultiplier;
-        invalidate();
+        postInvalidate();
     }
 
     @Override
@@ -265,7 +265,7 @@ public class HueBarSlider extends View implements HuePicker {
         }
 
         mCurrentHue = getHueFromColor(color);
-        invalidate();
+        postInvalidate();
     }
 
     @Override
@@ -301,7 +301,7 @@ public class HueBarSlider extends View implements HuePicker {
         }
 
         // Re-draw the view
-        invalidate();
+        postInvalidate();
 
         return true;
     }

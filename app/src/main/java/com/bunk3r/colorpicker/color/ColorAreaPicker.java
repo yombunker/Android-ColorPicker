@@ -38,7 +38,7 @@ public class ColorAreaPicker extends View implements ColorPicker, OnHueChangedLi
      * Default values for the control
      */
     private static final int NUMBER_OF_GRADIENTS = 256;
-    private static final int DEFAULT_SELECTED_COLOR_RADIUS = 4;
+    private static final int DEFAULT_SELECTED_COLOR_RADIUS = 5;
     private static final int DEFAULT_WIDTH = 256;
     private static final int DEFAULT_HEIGHT = 256;
 
@@ -52,7 +52,7 @@ public class ColorAreaPicker extends View implements ColorPicker, OnHueChangedLi
     // Paint objects used throughout the view
     private Paint mGradientsPaint;
     private Paint mInnerCirclePaint;
-    private Paint mOutterCirclePaint;
+    private Paint mOuterCirclePaint;
     private Paint mBitmapPaint;
 
     // Holds the width of the Slider's bitmap
@@ -119,7 +119,7 @@ public class ColorAreaPicker extends View implements ColorPicker, OnHueChangedLi
         mWasInflated = wasInflated;
 
         mInnerCirclePaint = new Paint();
-        mOutterCirclePaint = new Paint();
+        mOuterCirclePaint = new Paint();
         mGradientsPaint = new Paint();
         mBitmapPaint = new Paint();
 
@@ -127,8 +127,8 @@ public class ColorAreaPicker extends View implements ColorPicker, OnHueChangedLi
         mInnerCirclePaint.setStyle(Paint.Style.STROKE);
         mInnerCirclePaint.setColor(Color.BLACK);
 
-        mOutterCirclePaint.setStyle(Paint.Style.STROKE);
-        mOutterCirclePaint.setColor(Color.WHITE);
+        mOuterCirclePaint.setStyle(Paint.Style.STROKE);
+        mOuterCirclePaint.setColor(Color.WHITE);
 
         mColorBitmapMatrix = new Matrix();
         mColorsBitmap = Bitmap.createBitmap(256, 256, Bitmap.Config.ARGB_8888);
@@ -137,6 +137,10 @@ public class ColorAreaPicker extends View implements ColorPicker, OnHueChangedLi
 
     // Update the main field colors depending on the current selected hue
     private void updateMainColors(int color) {
+        if (mBaseColor == color) {
+            return;
+        }
+
         mBaseColor = color;
 
         final int baseRed = Color.red(mBaseColor);
@@ -151,19 +155,17 @@ public class ColorAreaPicker extends View implements ColorPicker, OnHueChangedLi
                     255 - (255 - baseRed) * x / 255,
                     255 - (255 - baseGreen) * x / 255,
                     255 - (255 - baseBlue) * x / 255);
-            final Shader gradientShader = new LinearGradient(0,
+            mGradientsPaint.setShader(new LinearGradient(0,
                     0,
                     0,
                     256,
                     colors,
                     null,
-                    Shader.TileMode.CLAMP);
-            mGradientsPaint.setShader(gradientShader);
+                    Shader.TileMode.CLAMP));
             mPreRenderingCanvas.drawLine(x, 0, x, 256, mGradientsPaint);
         }
     }
 
-    @SuppressLint("DrawAllocation")
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
@@ -180,7 +182,7 @@ public class ColorAreaPicker extends View implements ColorPicker, OnHueChangedLi
             mHeightDensityMultiplier = (float) height / NUMBER_OF_GRADIENTS;
             mColorBitmapMatrix.setScale(mWidthDensityMultiplier, mHeightDensityMultiplier);
             mInnerCirclePaint.setStrokeWidth(mWidthDensityMultiplier);
-            mOutterCirclePaint.setStrokeWidth(mWidthDensityMultiplier + 1);
+            mOuterCirclePaint.setStrokeWidth(mWidthDensityMultiplier + 2);
         }
     }
 
@@ -200,11 +202,8 @@ public class ColorAreaPicker extends View implements ColorPicker, OnHueChangedLi
         // Draws the scaled version of the hues
         canvas.drawBitmap(mColorsBitmap, mColorBitmapMatrix, mBitmapPaint);
 
-        // Display the circle around the currently selected color in the main field
-        if (mHasMoved) {
-            canvas.drawCircle(mCurrentX, mCurrentY, mInnerCircleWidth * mWidthDensityMultiplier, mOutterCirclePaint);
-            canvas.drawCircle(mCurrentX, mCurrentY, mInnerCircleWidth * mWidthDensityMultiplier, mInnerCirclePaint);
-        }
+        canvas.drawCircle(mCurrentX, mCurrentY, mInnerCircleWidth * mWidthDensityMultiplier, mOuterCirclePaint);
+        canvas.drawCircle(mCurrentX, mCurrentY, mInnerCircleWidth * mWidthDensityMultiplier, mInnerCirclePaint);
     }
 
     @Override
@@ -217,7 +216,7 @@ public class ColorAreaPicker extends View implements ColorPicker, OnHueChangedLi
 
         notifyColor();
 
-        invalidate();
+        postInvalidate();
     }
 
     @Override
@@ -281,7 +280,7 @@ public class ColorAreaPicker extends View implements ColorPicker, OnHueChangedLi
         notifyColor();
 
         // Re-draw the view
-        invalidate();
+        postInvalidate();
 
         return true;
     }
