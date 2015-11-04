@@ -26,6 +26,9 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.bunk3r.colorpicker.perf.TrackerId;
+import com.microsoft.perf.PerfManager;
+
 import java.security.InvalidParameterException;
 
 public class HueBarSlider extends View implements HuePicker {
@@ -92,6 +95,7 @@ public class HueBarSlider extends View implements HuePicker {
      * @param wasInflated if it was or not inflated via XML
      */
     private void init(boolean wasInflated) {
+        PerfManager.startElapseTime(TrackerId.GENERATE_HUE_ELAPSE);
         mWasInflated = wasInflated;
         mSelectedWidth = DEFAULT_SELECTED_HUE_WIDTH;
         mPaint = new Paint();
@@ -176,6 +180,7 @@ public class HueBarSlider extends View implements HuePicker {
                     height,
                     mPaint);
         }
+        PerfManager.stopElapseTime(TrackerId.GENERATE_HUE_ELAPSE);
     }
 
     @SuppressLint("DrawAllocation")
@@ -252,7 +257,7 @@ public class HueBarSlider extends View implements HuePicker {
         }
 
         mCurrentHue = hue * mDensityMultiplier;
-        postInvalidate();
+        invalidate();
     }
 
     @Override
@@ -265,7 +270,7 @@ public class HueBarSlider extends View implements HuePicker {
         }
 
         mCurrentHue = getHueFromColor(color);
-        postInvalidate();
+        invalidate();
     }
 
     @Override
@@ -282,8 +287,15 @@ public class HueBarSlider extends View implements HuePicker {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // If the action is anything different that DOWN or MOVE we ignore the rest of the gesture
-        if (event.getAction() != MotionEvent.ACTION_DOWN &&	event.getAction() != MotionEvent.ACTION_MOVE) {
+        if (event.getAction() != MotionEvent.ACTION_DOWN && event.getAction() != MotionEvent.ACTION_MOVE) {
+            PerfManager.stopAverageFPS(TrackerId.HUE_AREA_FPS);
             return false;
+        }
+
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            PerfManager.startAverageFPS(TrackerId.HUE_AREA_FPS);
+        } else {
+            PerfManager.updateAverageFPS(TrackerId.HUE_AREA_FPS);
         }
 
         // Transform the coordinates to a position inside the view
@@ -301,7 +313,7 @@ public class HueBarSlider extends View implements HuePicker {
         }
 
         // Re-draw the view
-        postInvalidate();
+        invalidate();
 
         return true;
     }

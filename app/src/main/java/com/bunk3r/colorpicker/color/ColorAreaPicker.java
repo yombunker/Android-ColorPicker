@@ -31,6 +31,8 @@ import android.view.View;
 
 import com.bunk3r.colorpicker.hue.HuePicker;
 import com.bunk3r.colorpicker.hue.OnHueChangedListener;
+import com.bunk3r.colorpicker.perf.TrackerId;
+import com.microsoft.perf.PerfManager;
 
 public class ColorAreaPicker extends View implements ColorPicker, OnHueChangedListener {
 
@@ -208,15 +210,19 @@ public class ColorAreaPicker extends View implements ColorPicker, OnHueChangedLi
 
     @Override
     public void setColor(int color) {
+        PerfManager.startElapseTime(TrackerId.GENERATE_COLORS_ELAPSE);
         notifyHuePicker(color);
 
+        PerfManager.startElapseTime(TrackerId.GENERATE_MAIN_COLORS_ELAPSE);
         updateMainColors(color);
+        PerfManager.stopElapseTime(TrackerId.GENERATE_MAIN_COLORS_ELAPSE);
 
         updateCurrentColor();
 
         notifyColor();
 
-        postInvalidate();
+        invalidate();
+        PerfManager.stopElapseTime(TrackerId.GENERATE_COLORS_ELAPSE);
     }
 
     @Override
@@ -250,7 +256,14 @@ public class ColorAreaPicker extends View implements ColorPicker, OnHueChangedLi
     public boolean onTouchEvent(MotionEvent event) {
         // If the action is anything different that DOWN or MOVE we ignore the rest of the gesture
         if (event.getAction() != MotionEvent.ACTION_DOWN && event.getAction() != MotionEvent.ACTION_MOVE) {
+            PerfManager.stopAverageFPS(TrackerId.COLOR_AREA_FPS);
             return false;
+        }
+
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            PerfManager.startAverageFPS(TrackerId.COLOR_AREA_FPS);
+        } else {
+            PerfManager.updateAverageFPS(TrackerId.COLOR_AREA_FPS);
         }
 
         // Transform the coordinates to a position inside the view
@@ -280,7 +293,7 @@ public class ColorAreaPicker extends View implements ColorPicker, OnHueChangedLi
         notifyColor();
 
         // Re-draw the view
-        postInvalidate();
+        invalidate();
 
         return true;
     }
