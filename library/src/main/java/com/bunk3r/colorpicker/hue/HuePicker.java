@@ -16,6 +16,10 @@ package com.bunk3r.colorpicker.hue;
  * limitations under the License.
  */
 
+import android.support.annotation.ColorInt;
+import android.support.annotation.FloatRange;
+import android.support.annotation.NonNull;
+
 public interface HuePicker {
 
     /**
@@ -23,20 +27,20 @@ public interface HuePicker {
      *
      * @param hue in range of [0, 360)
      */
-    void setHue(float hue);
+    void setHue(@FloatRange(from = 0, to = 360, toInclusive = false) float hue);
 
     /**
      * Changes the current selected hue based on the input color
      *
      * @param color in form of ARGB, where the Alpha channel is optional
      */
-    void setColor(int color);
+    void setColor(@ColorInt int color);
 
     /**
      * Sets the listener that will be used whenever something changes in the HuePicker
      *
      * @param listener (if null passed, it will stop reporting changes)
      */
-    void setOnHueChangedListener(OnHueChangedListener listener);
+    void setOnHueChangedListener(@NonNull OnHueChangedListener listener);
 
 }
