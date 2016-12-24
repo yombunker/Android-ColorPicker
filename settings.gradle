@@ -1,1 +1,1 @@
-include ':app', ':sampleapp', ':perftracker_release'
+include ':library', ':sampleapp'

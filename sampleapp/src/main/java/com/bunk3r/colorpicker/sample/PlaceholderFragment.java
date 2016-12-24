@@ -31,7 +31,7 @@ import com.bunk3r.colorpicker.ColorPickerListener;
 public class PlaceholderFragment extends Fragment {
 
     private static final String COLOR_KEY = "THE ONLY COLOR";
-    private int mCurrentColor = Color.WHITE;
+    private int mCurrentColor = Color.RED;
 
     public static Fragment newInstance() {
         return new PlaceholderFragment();

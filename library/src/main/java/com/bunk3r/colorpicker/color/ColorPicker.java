@@ -16,6 +16,9 @@ package com.bunk3r.colorpicker.color;
  * limitations under the License.
  */
 
+import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
+
 import com.bunk3r.colorpicker.hue.HuePicker;
 
 public interface ColorPicker {
@@ -25,20 +28,20 @@ public interface ColorPicker {
      *
      * @param color in form of ARGB, where the Alpha channel is optional
      */
-    void setColor(int color);
+    void setColor(@ColorInt int color);
 
     /**
      * Sets the hue picker that will be use in conjunction with the color picker
      *
      * @param huePicker send null if the hue picker wants to be removed
      */
-    void setHuePicker(HuePicker huePicker);
+    void setHuePicker(@NonNull HuePicker huePicker);
 
     /**
      * Sets the listener that will be used whenever something changes in the HuePicker
      *
      * @param listener (if null passed, it will stop reporting changes)
      */
-    void setOnColorChangedListener(OnColorChangedListener listener);
+    void setOnColorChangedListener(@NonNull OnColorChangedListener listener);
 
 }

@@ -16,26 +16,27 @@ package com.bunk3r.colorpicker.hue;
  * limitations under the License.
  */
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
+import android.support.annotation.ColorInt;
+import android.support.annotation.FloatRange;
+import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.bunk3r.colorpicker.perf.TrackerId;
-import com.microsoft.perf.PerfManager;
-
 import java.security.InvalidParameterException;
 
-public class HueBarSlider extends View implements HuePicker {
+public class HueBarSlider
+        extends View
+        implements HuePicker {
 
-    /**
-     * Default values for the control
-     */
+    // Default values for the control
     private static final int NUMBER_OF_HUES = 360;
     private static final int NUMBER_OF_HUE_SETS = 6;
     private static final int DEFAULT_SELECTED_HUE_WIDTH = 3;
@@ -43,48 +44,46 @@ public class HueBarSlider extends View implements HuePicker {
     private static final int DEFAULT_HEIGHT = 30;
 
     // Used for when the hue is set before the first layout
-    private boolean mIsHuePending = false;
+    private boolean huePending = false;
 
     // Holds the width of the Slider's bitmap
-    private int mSliderWidth;
+    private int sliderWidth;
 
     // True if inflated trough XML, false if created programmatically
-    private boolean mWasInflated;
+    private boolean wasInflated;
 
     // The width of the line that shows what color is currently selected
-    private int mSelectedWidth;
+    private int selectedWidth;
 
     // The ratio between the number of hues and the size of the view
-    private float mDensityMultiplier;
+    private float densityMultiplier;
 
     // Paint object used throughout the view
-    private Paint mPaint;
+    private Paint paint;
 
     // The Bitmap that holds the original 360 different hues
-    private Bitmap mHuesBitmap;
+    private Bitmap huesBitmap;
 
     // The Bitmap that caches the scaled version of the hues
-    private Bitmap mHueBarBitmap;
+    private Rect hueBarRect;
 
 
-    private OnHueChangedListener mHueChangedListener;
-    private float mCurrentHue;
+    private OnHueChangedListener hueChangedListener;
+    private float currentHue;
 
-    public HueBarSlider(Context context) {
+    public HueBarSlider(@NonNull Context context) {
         super(context);
 
-        if (context != null) {
-            mDensityMultiplier = (int) Math.ceil(context.getResources().getDisplayMetrics().density);
-        }
-
+        densityMultiplier = (int) Math.ceil(context.getResources()
+                                                   .getDisplayMetrics().density);
         init(false);
     }
 
-    public HueBarSlider(Context context, AttributeSet attrs) {
+    public HueBarSlider(@NonNull Context context, @NonNull AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public HueBarSlider(Context context, AttributeSet attrs, int defStyleAttr) {
+    public HueBarSlider(@NonNull Context context, @NonNull AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(true);
     }
@@ -95,10 +94,10 @@ public class HueBarSlider extends View implements HuePicker {
      * @param wasInflated if it was or not inflated via XML
      */
     private void init(boolean wasInflated) {
-        PerfManager.startElapseTime(TrackerId.GENERATE_HUE_ELAPSE);
-        mWasInflated = wasInflated;
-        mSelectedWidth = DEFAULT_SELECTED_HUE_WIDTH;
-        mPaint = new Paint();
+        this.wasInflated = wasInflated;
+        selectedWidth = DEFAULT_SELECTED_HUE_WIDTH;
+        paint = new Paint();
+        hueBarRect = new Rect();
         preRenderHueBar();
     }
 
@@ -107,8 +106,8 @@ public class HueBarSlider extends View implements HuePicker {
      *
      * @param width a positive value greater than 0 (1, 2, ....)
      */
-    public void setCurrentHueWidth(int width) {
-        mSelectedWidth = width > 0 ? width : 1;
+    public void setCurrentHueWidth(@IntRange(from = 0) int width) {
+        selectedWidth = width > 0 ? width : 1;
     }
 
     /**
@@ -155,8 +154,8 @@ public class HueBarSlider extends View implements HuePicker {
             index++;
         }
 
-        mHuesBitmap = Bitmap.createBitmap(NUMBER_OF_HUES, 1, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(mHuesBitmap);
+        huesBitmap = Bitmap.createBitmap(NUMBER_OF_HUES, 1, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(huesBitmap);
         preDrawHueSlider(canvas, hueBarColors);
     }
 
@@ -164,26 +163,24 @@ public class HueBarSlider extends View implements HuePicker {
      * Draws all the hues into the canvas
      *
      * @param canvas where the hues will be drawn
-     * @param hues list of colors that will be drawn
+     * @param hues   list of colors that will be drawn
      */
-    private void preDrawHueSlider(Canvas canvas, int[] hues) {
+    private void preDrawHueSlider(@NonNull Canvas canvas, int[] hues) {
         final int height = canvas.getHeight();
 
         // Display all the colors of the hue bar with lines
         // The current selected color will be drawn with a BLACK line
-        mPaint.setStrokeWidth(0);
+        paint.setStrokeWidth(0);
         for (int x = 0; x < hues.length; x++) {
-            mPaint.setColor(hues[x]);
+            paint.setColor(hues[x]);
             canvas.drawLine(x,
-                    0,
-                    x,
-                    height,
-                    mPaint);
+                            0,
+                            x,
+                            height,
+                            paint);
         }
-        PerfManager.stopElapseTime(TrackerId.GENERATE_HUE_ELAPSE);
     }
 
-    @SuppressLint("DrawAllocation")
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
@@ -193,12 +190,12 @@ public class HueBarSlider extends View implements HuePicker {
             final int width = right - left;
             final int height = bottom - top;
 
-            mDensityMultiplier = (float)width / NUMBER_OF_HUES;
-            mHueBarBitmap = Bitmap.createScaledBitmap(mHuesBitmap, width, height, false);
-            mSliderWidth = width;
+            densityMultiplier = (float) width / NUMBER_OF_HUES;
+            hueBarRect.set(0, 0, width, height);
+            sliderWidth = width;
 
-            if (mIsHuePending) {
-                mCurrentHue *= mDensityMultiplier;
+            if (huePending) {
+                currentHue *= densityMultiplier;
             }
         }
     }
@@ -206,9 +203,9 @@ public class HueBarSlider extends View implements HuePicker {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         // we use default size if it's inflated through code
-        if (!mWasInflated) {
-            widthMeasureSpec = (int) (DEFAULT_WIDTH * mDensityMultiplier);
-            heightMeasureSpec = (int) (DEFAULT_HEIGHT * mDensityMultiplier);
+        if (!wasInflated) {
+            widthMeasureSpec = (int) (DEFAULT_WIDTH * densityMultiplier);
+            heightMeasureSpec = (int) (DEFAULT_HEIGHT * densityMultiplier);
         }
 
         setMeasuredDimension(widthMeasureSpec, heightMeasureSpec);
@@ -217,17 +214,17 @@ public class HueBarSlider extends View implements HuePicker {
     @Override
     protected void onDraw(Canvas canvas) {
         // Draws the scaled version of the hues
-        canvas.drawBitmap(mHueBarBitmap, 0, 0, mPaint);
+        canvas.drawBitmap(huesBitmap, null, hueBarRect, paint);
 
         // Draws the line of the current selected hue
-        final int translatedHue = (int) (mCurrentHue);
-        mPaint.setColor(Color.BLACK);
-        mPaint.setStrokeWidth((int)(mSelectedWidth * mDensityMultiplier));
+        final int translatedHue = (int) (currentHue);
+        paint.setColor(Color.BLACK);
+        paint.setStrokeWidth((int) (selectedWidth * densityMultiplier));
         canvas.drawLine(translatedHue,
-                0,
-                translatedHue,
-                canvas.getHeight(),
-                mPaint);
+                        0,
+                        translatedHue,
+                        canvas.getHeight(),
+                        paint);
     }
 
     /**
@@ -236,80 +233,72 @@ public class HueBarSlider extends View implements HuePicker {
      * @param color in form of ARGB (the alpha part is optional)
      * @return the hue value [0 - 360)
      */
-    private float getHueFromColor(int color) {
+    private float getHueFromColor(@ColorInt int color) {
         float[] hsv = new float[3];
         Color.colorToHSV(color, hsv);
-        return hsv[0] * mDensityMultiplier;
+        return hsv[0] * densityMultiplier;
     }
 
     @Override
-    public void setHue(float hue) {
-
+    public void setHue(@FloatRange(from = 0, to = NUMBER_OF_HUES, toInclusive = false) float hue) {
         if (hue < 0f || hue >= NUMBER_OF_HUES) {
             throw new InvalidParameterException("The hue has to be between 0 (inclusive) and 360 (exclusive)");
         }
 
         // If it was inflated and hasn't being layout as far now,
         // we set it as a pending transaction
-        if (mDensityMultiplier == 0) {
-            mDensityMultiplier = 1;
-            mIsHuePending = true;
+        if (densityMultiplier == 0) {
+            densityMultiplier = 1;
+            huePending = true;
         }
 
-        mCurrentHue = hue * mDensityMultiplier;
+        currentHue = hue * densityMultiplier;
         invalidate();
     }
 
     @Override
-    public void setColor(int color) {
+    public void setColor(@ColorInt int color) {
         // If it was inflated and hasn't being layout as far now,
         // we set it as a pending transaction
-        if (mDensityMultiplier == 0) {
-            mDensityMultiplier = 1;
-            mIsHuePending = true;
+        if (densityMultiplier == 0) {
+            densityMultiplier = 1;
+            huePending = true;
         }
 
-        mCurrentHue = getHueFromColor(color);
+        currentHue = getHueFromColor(color);
         invalidate();
     }
 
     @Override
-    public void setOnHueChangedListener(OnHueChangedListener listener) {
-        mHueChangedListener = listener;
+    public void setOnHueChangedListener(@NonNull OnHueChangedListener listener) {
+        hueChangedListener = listener;
 
         // We notify immediately to the listener of the current hue
-        if (listener != null) {
-            listener.onHueChanged(mHuesBitmap.getPixel((int)(mCurrentHue / mDensityMultiplier), 0));
-        }
+        listener.onHueChanged(huesBitmap.getPixel((int) (currentHue / densityMultiplier), 0));
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // If the action is anything different that DOWN or MOVE we ignore the rest of the gesture
-        if (event.getAction() != MotionEvent.ACTION_DOWN && event.getAction() != MotionEvent.ACTION_MOVE) {
-            PerfManager.stopAverageFPS(TrackerId.HUE_AREA_FPS);
+        int touchEvent = event.getAction();
+        if (touchEvent != MotionEvent.ACTION_DOWN && touchEvent != MotionEvent.ACTION_MOVE) {
             return false;
-        }
-
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            PerfManager.startAverageFPS(TrackerId.HUE_AREA_FPS);
-        } else {
-            PerfManager.updateAverageFPS(TrackerId.HUE_AREA_FPS);
         }
 
         // Transform the coordinates to a position inside the view
         float x = event.getX();
         if (x < 0) {
             x = 0;
-        } else if (x >= mSliderWidth) {
-            x = mSliderWidth - 1;
+        } else if (x >= sliderWidth) {
+            x = sliderWidth - 1;
         }
 
         // Update the main field colors
-        mCurrentHue = x;
-        if (mHueChangedListener != null) {
-            mHueChangedListener.onHueChanged(mHueBarBitmap.getPixel((int)x, 0));
+        currentHue = x;
+        if (hueChangedListener != null) {
+            final int transX = (int) (x / densityMultiplier);
+            final int currentHue = huesBitmap.getPixel(transX, 0);
+            hueChangedListener.onHueChanged(currentHue);
         }
 
         // Re-draw the view

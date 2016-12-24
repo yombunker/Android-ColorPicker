@@ -1,4 +1,4 @@
-package com.bunk3r.colorpicker.hue;
+package com.bunk3r.colorpicker.color;
 
 /*
  * Copyright (C) 10/2014 - Bunk3r
@@ -16,13 +16,15 @@ package com.bunk3r.colorpicker.hue;
  * limitations under the License.
  */
 
-public interface OnHueChangedListener {
+import android.support.annotation.ColorInt;
+
+public interface OnColorChangedListener {
 
     /**
-     * Called when the hue slider has moved
+     * Called when the color picker has moved
      *
      * @param color the new color that is currently selected
      */
-    void onHueChanged(int color);
+    void onColorChanged(@ColorInt int color);
 
 }
