@@ -20,8 +20,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Shader;
 import android.support.annotation.ColorInt;
 import android.support.annotation.FloatRange;
 import android.support.annotation.IntRange;
@@ -29,6 +31,8 @@ import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.bunk3r.colorpicker.utils.DimenUtils;
 
 import java.security.InvalidParameterException;
 
@@ -38,8 +42,7 @@ public class HueBarSlider
 
     // Default values for the control
     private static final int NUMBER_OF_HUES = 360;
-    private static final int NUMBER_OF_HUE_SETS = 6;
-    private static final int DEFAULT_SELECTED_HUE_WIDTH = 3;
+    private static final int DEFAULT_SELECTED_HUE_WIDTH = 5;
     private static final int DEFAULT_WIDTH = 256;
     private static final int DEFAULT_HEIGHT = 30;
 
@@ -67,15 +70,14 @@ public class HueBarSlider
     // The Bitmap that caches the scaled version of the hues
     private Rect hueBarRect;
 
-
     private OnHueChangedListener hueChangedListener;
+
     private float currentHue;
 
     public HueBarSlider(@NonNull Context context) {
         super(context);
 
-        densityMultiplier = (int) Math.ceil(context.getResources()
-                                                   .getDisplayMetrics().density);
+        densityMultiplier = (int) Math.ceil(context.getResources().getDisplayMetrics().density);
         init(false);
     }
 
@@ -114,71 +116,26 @@ public class HueBarSlider
      * Calculates the different hues and caches them in a Bitmap
      */
     private void preRenderHueBar() {
-        int index = 0;
-        final int[] hueBarColors = new int[NUMBER_OF_HUES];
-        final float hueIncrement = 255f / (NUMBER_OF_HUES / NUMBER_OF_HUE_SETS);
+        int[] hueBarColors = {Color.RED,
+                              Color.YELLOW,
+                              Color.GREEN,
+                              Color.CYAN,
+                              Color.BLUE,
+                              Color.MAGENTA,
+                              Color.RED};
 
-        for (float i = hueIncrement; i < 256; i += hueIncrement) // red (#f00) - yellow (#ff0)
-        {
-            hueBarColors[index] = Color.rgb(255, (int) i, 0);
-            index++;
-        }
-
-        for (float i = hueIncrement; i < 256; i += hueIncrement) // yellow (#ff0) - green (#0f0)
-        {
-            hueBarColors[index] = Color.rgb(255 - (int) i, 255, 0);
-            index++;
-        }
-
-        for (float i = hueIncrement; i < 256; i += hueIncrement) // green (#0f0) - cyan (#0ff)
-        {
-            hueBarColors[index] = Color.rgb(0, 255, (int) i);
-            index++;
-        }
-
-        for (float i = hueIncrement; i < 256; i += hueIncrement) // cyan (#0ff) - blue (#00f)
-        {
-            hueBarColors[index] = Color.rgb(0, 255 - (int) i, 255);
-            index++;
-        }
-
-        for (float i = hueIncrement; i < 256; i += hueIncrement) // blue (#00f) - Pink (#f0f)
-        {
-            hueBarColors[index] = Color.rgb((int) i, 0, 255);
-            index++;
-        }
-
-        for (float i = hueIncrement; i < 256; i += hueIncrement) // pink (#f0f) - Red (#f00)
-        {
-            hueBarColors[index] = Color.rgb(255, 0, 255 - (int) i);
-            index++;
-        }
-
-        huesBitmap = Bitmap.createBitmap(NUMBER_OF_HUES, 1, Bitmap.Config.ARGB_8888);
+        huesBitmap = Bitmap.createBitmap(NUMBER_OF_HUES, 1, Bitmap.Config.ARGB_4444);
         Canvas canvas = new Canvas(huesBitmap);
-        preDrawHueSlider(canvas, hueBarColors);
-    }
 
-    /**
-     * Draws all the hues into the canvas
-     *
-     * @param canvas where the hues will be drawn
-     * @param hues   list of colors that will be drawn
-     */
-    private void preDrawHueSlider(@NonNull Canvas canvas, int[] hues) {
-        final int height = canvas.getHeight();
-
-        // Display all the colors of the hue bar with lines
-        // The current selected color will be drawn with a BLACK line
-        paint.setStrokeWidth(0);
-        for (int x = 0; x < hues.length; x++) {
-            paint.setColor(hues[x]);
-            canvas.drawLine(x,
-                            0,
-                            x,
-                            height,
-                            paint);
-        }
+        paint.setShader(new LinearGradient(0.f,
+                                           0.f,
+                                           NUMBER_OF_HUES,
+                                           0.f,
+                                           hueBarColors,
+                                           null,
+                                           Shader.TileMode.CLAMP));
+        canvas.drawLine(0.f, 0.f, NUMBER_OF_HUES, 0.f, paint);
+        paint.setShader(null);
     }
 
     @Override
@@ -242,7 +199,8 @@ public class HueBarSlider
     @Override
     public void setHue(@FloatRange(from = 0, to = NUMBER_OF_HUES, toInclusive = false) float hue) {
         if (hue < 0f || hue >= NUMBER_OF_HUES) {
-            throw new InvalidParameterException("The hue has to be between 0 (inclusive) and 360 (exclusive)");
+            throw new InvalidParameterException(
+                    "The hue has to be between 0 (inclusive) and 360 (exclusive)");
         }
 
         // If it was inflated and hasn't being layout as far now,
@@ -286,12 +244,7 @@ public class HueBarSlider
         }
 
         // Transform the coordinates to a position inside the view
-        float x = event.getX();
-        if (x < 0) {
-            x = 0;
-        } else if (x >= sliderWidth) {
-            x = sliderWidth - 1;
-        }
+        float x = DimenUtils.adjustToBounds(event.getX(), 0, sliderWidth - 1);
 
         // Update the main field colors
         currentHue = x;

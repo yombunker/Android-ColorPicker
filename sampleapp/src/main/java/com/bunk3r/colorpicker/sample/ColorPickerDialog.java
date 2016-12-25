@@ -19,6 +19,8 @@ package com.bunk3r.colorpicker.sample;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -28,30 +30,33 @@ import com.bunk3r.colorpicker.color.ColorAreaPicker;
 import com.bunk3r.colorpicker.color.OnColorChangedListener;
 import com.bunk3r.colorpicker.hue.HuePicker;
 
-public class ColorPickerDialog extends Dialog implements OnColorChangedListener {
+class ColorPickerDialog
+        extends Dialog
+        implements OnColorChangedListener {
 
-    private ColorPickerListener mColorPickerListener;
-    private String mKey;
+    private ColorPickerListener colorPickerListener;
+    private String key;
 
-    private View mSelectedColorPreview;
+    private View selectedColorPreview;
 
-    private int mInitialColor;
-    private int mSelectedColor;
+    @ColorInt
+    private int initialColor;
 
-    public ColorPickerDialog(Context context) {
+    @ColorInt
+    private int selectedColor;
+
+    ColorPickerDialog(Context context) {
         super(context);
-
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setBackgroundDrawableResource(R.drawable.transparent);
     }
 
-    public void setColorPickerLister(ColorPickerListener colorPickerLister, String key) {
-        mColorPickerListener = colorPickerLister;
-        mKey = key;
+    void setColorPickerLister(@NonNull ColorPickerListener colorPickerLister, @NonNull String key) {
+        colorPickerListener = colorPickerLister;
+        this.key = key;
     }
 
-    public void setInitialColor(int color) {
-        mInitialColor = color;
+    void setInitialColor(@ColorInt int color) {
+        initialColor = color;
     }
 
     @Override
@@ -64,19 +69,19 @@ public class ColorPickerDialog extends Dialog implements OnColorChangedListener 
         Button okButton = (Button) findViewById(R.id.ok_button);
         Button cancelButton = (Button) findViewById(R.id.cancel_button);
         View currentColorPreview = findViewById(R.id.current_color);
-        mSelectedColorPreview = findViewById(R.id.selected_color);
+        selectedColorPreview = findViewById(R.id.selected_color);
 
-        currentColorPreview.setBackgroundColor(mInitialColor);
-        mSelectedColorPreview.setBackgroundColor(mInitialColor);
+        currentColorPreview.setBackgroundColor(initialColor);
+        selectedColorPreview.setBackgroundColor(initialColor);
 
         colorAreaPicker.setOnColorChangedListener(this);
         colorAreaPicker.setHuePicker(huePicker);
-        colorAreaPicker.setColor(mInitialColor);
+        colorAreaPicker.setColor(initialColor);
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mColorPickerListener.onColorSelected(mKey, mSelectedColor);
+                colorPickerListener.onColorSelected(key, selectedColor);
                 dismiss();
             }
         });
@@ -84,15 +89,15 @@ public class ColorPickerDialog extends Dialog implements OnColorChangedListener 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mColorPickerListener.onSelectionCancel(mKey);
+                colorPickerListener.onSelectionCancel(key);
                 dismiss();
             }
         });
     }
 
     @Override
-    public void onColorChanged(int color) {
-        mSelectedColor = color;
-        mSelectedColorPreview.setBackgroundColor(mSelectedColor);
+    public void onColorChanged(@ColorInt int color) {
+        selectedColor = color;
+        selectedColorPreview.setBackgroundColor(selectedColor);
     }
 }

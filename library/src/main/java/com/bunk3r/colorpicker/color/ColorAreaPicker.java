@@ -35,6 +35,7 @@ import android.view.View;
 
 import com.bunk3r.colorpicker.hue.HuePicker;
 import com.bunk3r.colorpicker.hue.OnHueChangedListener;
+import com.bunk3r.colorpicker.utils.DimenUtils;
 
 public class ColorAreaPicker
         extends View
@@ -125,15 +126,22 @@ public class ColorAreaPicker
         bitmapPaint = new Paint();
 
         innerCircleWidth = DEFAULT_SELECTED_COLOR_RADIUS;
-        innerCirclePaint.setStyle(Paint.Style.STROKE);
+        innerCirclePaint.setStyle(Paint.Style.FILL);
         innerCirclePaint.setColor(Color.BLACK);
 
         outerCirclePaint.setStyle(Paint.Style.STROKE);
         outerCirclePaint.setColor(Color.WHITE);
 
-        baseGradientShader = new LinearGradient(0.f, 0.f, 0.f, NUMBER_OF_GRADIENTS, Color.WHITE, Color.BLACK, Shader.TileMode.CLAMP);
+        baseGradientShader = new LinearGradient(0.f,
+                                                0.f,
+                                                0.f,
+                                                NUMBER_OF_GRADIENTS,
+                                                Color.WHITE,
+                                                Color.BLACK,
+                                                Shader.TileMode.CLAMP);
         colorBitmapMatrix = new Matrix();
-        colorsBitmap = Bitmap.createBitmap(NUMBER_OF_GRADIENTS, NUMBER_OF_GRADIENTS, Bitmap.Config.ARGB_4444);
+        colorsBitmap = Bitmap
+                .createBitmap(NUMBER_OF_GRADIENTS, NUMBER_OF_GRADIENTS, Bitmap.Config.ARGB_4444);
         preRenderingCanvas = new Canvas(colorsBitmap);
     }
 
@@ -145,10 +153,19 @@ public class ColorAreaPicker
 
         baseColor = color;
 
-        Shader gradientShader = new LinearGradient(0.f, 0.f, NUMBER_OF_GRADIENTS, 0.f, Color.WHITE, baseColor, Shader.TileMode.CLAMP);
-        ComposeShader shader = new ComposeShader(gradientShader, baseGradientShader, PorterDuff.Mode.MULTIPLY);
+        Shader gradientShader = new LinearGradient(0.f,
+                                                   0.f,
+                                                   NUMBER_OF_GRADIENTS,
+                                                   0.f,
+                                                   Color.WHITE,
+                                                   baseColor,
+                                                   Shader.TileMode.CLAMP);
+        ComposeShader shader = new ComposeShader(gradientShader,
+                                                 baseGradientShader,
+                                                 PorterDuff.Mode.MULTIPLY);
         gradientsPaint.setShader(shader);
-        preRenderingCanvas.drawRect(0.f, 0.f, NUMBER_OF_GRADIENTS, NUMBER_OF_GRADIENTS, gradientsPaint);
+        preRenderingCanvas
+                .drawRect(0.f, 0.f, NUMBER_OF_GRADIENTS, NUMBER_OF_GRADIENTS, gradientsPaint);
     }
 
     @Override
@@ -187,8 +204,14 @@ public class ColorAreaPicker
         // Draws the scaled version of the hues
         canvas.drawBitmap(colorsBitmap, colorBitmapMatrix, bitmapPaint);
 
-        canvas.drawCircle(currentX, currentY, innerCircleWidth * widthDensityMultiplier, outerCirclePaint);
-        canvas.drawCircle(currentX, currentY, innerCircleWidth * widthDensityMultiplier, innerCirclePaint);
+        canvas.drawCircle(currentX,
+                          currentY,
+                          innerCircleWidth * widthDensityMultiplier,
+                          outerCirclePaint);
+        canvas.drawCircle(currentX,
+                          currentY,
+                          innerCircleWidth * widthDensityMultiplier,
+                          innerCirclePaint);
     }
 
     @Override
@@ -238,22 +261,8 @@ public class ColorAreaPicker
         }
 
         // Transform the coordinates to a position inside the view
-        float x = event.getX();
-        float y = event.getY();
-
-        // Adjust X coordinate
-        if (x < 0) {
-            x = 0;
-        } else if (x >= pickerWidth) {
-            x = pickerWidth - 1;
-        }
-
-        // Adjust Y coordinate
-        if (y < 0) {
-            y = 0;
-        } else if (y >= pickerHeight) {
-            y = pickerHeight - 1;
-        }
+        float x = DimenUtils.adjustToBounds(event.getX(), 0, pickerWidth - 1);
+        float y = DimenUtils.adjustToBounds(event.getY(), 0, pickerHeight - 1);
 
         // No need to update anything if you haven't moved
         if (x != currentX || y != currentY) {
